@@ -30,6 +30,15 @@ body{
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
+
+}
+.avatar{
+	padding: 1rem;
+	border-style: solid;
+	border-radius: 45%;
+	border-color:#ed2b2a;
+	border-width: 2px;
+
 }
 
 .login-content{
@@ -48,7 +57,7 @@ form{
 }
 
 .login-content img{
-    height: 100px;
+    height: 140px;
 }
 
 .login-content h2{
