@@ -6,8 +6,22 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+
+
 }
 
 canvas {
     position: absolute;
+}
+
+#message {
+    position: absolute;
+    top  : 10px;
+    left  : 50%;
+    transform  : translateX(-50%);
+    font-family  : sans-serif;
+    font-weight  : bold;
+    color  : red;
+    display  : "none";
+
 }
