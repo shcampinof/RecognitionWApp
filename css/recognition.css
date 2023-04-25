@@ -12,6 +12,8 @@ body {
 
 canvas {
     position: absolute;
+    
+
 }
 
 #message {
@@ -21,7 +23,6 @@ canvas {
     transform  : translateX(-50%);
     font-family  : sans-serif;
     font-weight  : bold;
-    color  : red;
     display  : "none";
 
 }

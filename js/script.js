@@ -24,19 +24,23 @@ function iniciarWebCam() {  //function to start the webcam
 }
 
 function getLabeledFaceDescriptions() {
-  const labels = ["Camilo", "Nelson", "Sebastian"];
+  const labels = ["Camilo", "Nelson", "Sebastian"]; //array de etiquetas con los nombres de las personas
   return Promise.all(
     labels.map(async (label) => {
       const descriptions = [];
       for (let i = 1; i <= 2; i++) {
-        const img = await faceapi.fetchImage(`./labels/${label}/${i}.jpg`);
+        const img = await faceapi.fetchImage(`./labels/${label}/${i}.jpg`); //faceapi.fetchImage -> Carga las imagenes
         const detections = await faceapi
-          .detectSingleFace(img)
+          .detectSingleFace(img) //detecta una unica cara
           .withFaceLandmarks()
           .withFaceDescriptor();
-        descriptions.push(detections.descriptor);
+          // se devuelve un objeto FaceDetection que contiene las coordenadas de la caja delimitadora (bounding box)
+          // y los vectores de características (descriptores) de la cara detectada.
+        descriptions.push(detections.descriptor); //agrega los vectores de características (descriptores)...
+        // de las dos imágenes en un array para la etiqueta correspondiente
       }
-      return new faceapi.LabeledFaceDescriptors(label, descriptions);
+      return new faceapi.LabeledFaceDescriptors(label, descriptions); // se crea un objeto LabeledFaceDescriptors
+      //para cada nombre de label  y el array de vectores de características (descriptores) correspondiente
     })
   );
 }
@@ -44,9 +48,11 @@ function getLabeledFaceDescriptions() {
 async function faceRecognition() {
   const labeledFaceDescriptors = await getLabeledFaceDescriptions();
   const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
-  video.addEventListener("playing", () => { //after video is playing
+
+  video.addEventListener("playing", () => {
     location.reload();
   });
+
   const canvas = faceapi.createCanvasFromMedia(video);
   document.body.append(canvas);
 
@@ -54,29 +60,33 @@ async function faceRecognition() {
   faceapi.matchDimensions(canvas, displaySize);
 
   setInterval(async () => {
-    const detections = await faceapi
-      .detectAllFaces(video)
-      .withFaceLandmarks()
-      .withFaceDescriptors();
+    const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
 
     const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+
     const results = resizedDetections.map((d) => {
       return faceMatcher.findBestMatch(d.descriptor);
     });
+
     results.forEach((result, i) => {
       const box = resizedDetections[i].detection.box;
-      const drawBox = new faceapi.draw.DrawBox(box, {
-        label: result,
-      });
+      const drawBox = new faceapi.draw.DrawBox(box, { label: result.toString() });
+
+      // Change color of the box based on the match confidence
+      const matchConfidence = results[i].distance;  
       drawBox.draw(canvas);
 
-      const messageElement = document.getElementById("message"); // Get the message element from HTML
-      if (results[0].distance < 0.6) { // Check if the distance is less than a certain threshold
-        messageElement.innerText = "Puede ingresar"; // Show the message "Puede ingresar"
+
+      const messageElement = document.getElementById("message");
+      if (matchConfidence < 0.6) {
+        messageElement.innerText = "Puede ingresar";
+        messageElement.style.color = "green";
       } else {
-        messageElement.innerText = "No puede ingresar"; // Show the message "No puede ingresar"
+        messageElement.innerText = "No puede ingresar";
+        messageElement.style.color = "red";
       }
     });
   }, 100);
-} 
+}
